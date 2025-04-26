@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "@huggingface/transformers": "^3.5.0",
+    "esbuild": "^0.25.3"
+  },
+  "scripts": {
+    "build": "esbuild src/index.js --bundle --minify --sourcemap --platform=browser --outfile=dist/bundle.js",
+    "watch": "esbuild src/index.js --bundle --minify --sourcemap --platform=browser --outfile=dist/bundle.js --watch"
+  }
+}

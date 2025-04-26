@@ -1,0 +1,10 @@
+services:
+  node:
+    build:
+      context: .
+    working_dir: /app
+    volumes:
+      - ./:/app
+    command: npm run watch
+    stdin_open: true
+    tty: true
