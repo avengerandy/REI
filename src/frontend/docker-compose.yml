@@ -1,10 +1,22 @@
 services:
-  node:
+  node-esbuild:
     build:
       context: .
     working_dir: /app
     volumes:
       - ./:/app
     command: npm run watch
+    stdin_open: true
+    tty: true
+
+  node-server:
+    build:
+      context: .
+    working_dir: /app
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./:/app
+    command: npm run server
     stdin_open: true
     tty: true
