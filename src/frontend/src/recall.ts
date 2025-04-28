@@ -1,7 +1,7 @@
 import { Item } from "./core/entities";
 
 abstract class Recall {
-    abstract recall(): Item[];
+    abstract recall(): Promise<Item[]>;
 }
 
 class BooksRecall extends Recall {
@@ -108,9 +108,38 @@ class BooksRecall extends Recall {
         "穿越驚奇圖書館3：難相處的童話大師安徒生（隨書附贈角色珍藏書籤）"
     ];
 
-    recall(): Item[] {
-        return BooksRecall.recallData.map((title) => new Item(title));
+    recall(): Promise<Item[]> {
+        return Promise.resolve(
+            BooksRecall.recallData.map(
+                (title) => new Item(title)
+            )
+        );
     }
 }
 
-export { Recall, BooksRecall };
+class GnnRecall extends Recall {
+    async recall(): Promise<Item[]> {
+        try {
+            const response = await fetch("http://localhost:1200/gamer/gnn");
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const text = await response.text();
+            const parser = new DOMParser();
+            const xmlDoc = parser.parseFromString(text, "application/xml");
+
+            const items = Array.from(xmlDoc.querySelectorAll("item")).map((item) => {
+                const title = item.querySelector("title")?.textContent || '';
+                return new Item(title);
+            });
+
+            return items;
+        } catch (error) {
+            console.error("Error fetching or parsing RSS feed:", error);
+            return [];
+        }
+    }
+}
+
+export { Recall, BooksRecall, GnnRecall };

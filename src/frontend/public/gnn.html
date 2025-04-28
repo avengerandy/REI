@@ -36,10 +36,10 @@
         </div>
     </div>
     <script type="module">
-        import { User, BooksRecall, EmbeddingProcessor, BetaUserProfile, ScoreRanker } from './dist/bundle.js';
+        import { User, GnnRecall, EmbeddingProcessor, BetaUserProfile, ScoreRanker } from './dist/bundle.js';
 
         window.onload = async () => {
-            const recall = new BooksRecall();
+            const recall = new GnnRecall();
             const ranker = new ScoreRanker();
 
             const processor = new EmbeddingProcessor();
