@@ -36,27 +36,25 @@
         </div>
     </div>
     <script type="module">
-        import { User, GnnRecall, EmbeddingProcessor, BetaUserProfile, ScoreRanker } from './dist/bundle.js';
+        import { User, GnnRecall, EmbeddingProcessor, BetaLikelihoodReranker } from './dist/bundle.js';
 
         window.onload = async () => {
             const recall = new GnnRecall();
-            const ranker = new ScoreRanker();
-
+            const reranker = new BetaLikelihoodReranker();
             const processor = new EmbeddingProcessor();
             await processor.init();
-            let items = await processor.process(await recall.recall());
 
+            let items = await processor.process(await recall.recall());
             const user = new User();
-            const profile = new BetaUserProfile();
 
             const recList = document.getElementById("rec-list");
             const clickedList = document.getElementById("clicked-list");
 
-            const render = () => {
+            const render = async () => {
                 recList.innerHTML = "";
                 clickedList.innerHTML = "";
 
-                items = ranker.rank(items);
+                items = await reranker.rank(user, items);
                 for (const item of items) {
                     const li = document.createElement("li");
                     li.className = "list-group-item";
@@ -64,7 +62,6 @@
                     li.onclick = () => {
                         user.recordClick(item);
                         items = items.filter(x => x.getHash() !== item.getHash());
-                        profile.updateItemsScore(user, items);
                         render();
                     };
                     recList.appendChild(li);

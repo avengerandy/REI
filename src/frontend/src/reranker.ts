@@ -1,11 +1,11 @@
 import { User, Item } from "./core/entities";
 import { betaPDF } from "./core/statistics";
 
-abstract class UserProfile {
-    abstract updateItemsScore(user: User, items: Item[]): Item[];
+abstract class Reranker {
+    abstract rank(user: User, items: Item[]): Promise<Item[]>;
 }
 
-class BetaUserProfile extends UserProfile {
+class BetaLikelihoodReranker extends Reranker {
     private count: number;
     private sum: number[];
 
@@ -15,7 +15,7 @@ class BetaUserProfile extends UserProfile {
         this.sum = new Array(dim).fill(0);
     }
 
-    updateItemsScore(user: User, items: Item[]): Item[] {
+    async rank(user: User, items: Item[]): Promise<Item[]> {
         let clickItems = user.getClickHistory();
         for (let item of clickItems) {
             const embedding = item.getEmbedding();
@@ -36,7 +36,7 @@ class BetaUserProfile extends UserProfile {
             }
         }
 
-        return items;
+        return Promise.resolve(items.sort((a, b) => b.getScore() - a.getScore()));
     }
 
     private getBetaScores(vec: number[]): number[] {
@@ -51,4 +51,4 @@ class BetaUserProfile extends UserProfile {
     }
 }
 
-export { UserProfile, BetaUserProfile };
+export { Reranker, BetaLikelihoodReranker };
