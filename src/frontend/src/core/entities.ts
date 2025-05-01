@@ -3,16 +3,18 @@ import { md5 } from 'js-md5';
 class Item {
     private title: string;
     private hash: string;
+    private type: number | null;
     private embedding: number[] | null;
     private score: number;
-    private originalScore: number;
+    private originalScore: number | null;
 
     constructor(title: string) {
         this.title = title;
         this.hash = this.generateHash(title);
+        this.type = null;
         this.embedding = null;
         this.score = 0;
-        this.originalScore = 0;
+        this.originalScore = null;
     }
 
     getTitle(): string {
@@ -21,6 +23,14 @@ class Item {
 
     getHash(): string {
         return this.hash;
+    }
+
+    setType(type: number): void {
+        this.type = type;
+    }
+
+    getType(): number | null {
+        return this.type;
     }
 
     setEmbedding(embedding: number[]): void {
@@ -39,7 +49,11 @@ class Item {
         return this.score;
     }
 
-    getOriginalScore(): number {
+    setOriginalScore(originalScore: number): void {
+        this.originalScore = originalScore;
+    }
+
+    getOriginalScore(): number | null {
         return this.originalScore;
     }
 
