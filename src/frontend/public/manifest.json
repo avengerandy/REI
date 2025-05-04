@@ -1,0 +1,34 @@
+{
+    "manifest_version": 3,
+    "name": "Transformers Embedding Test",
+    "version": "0.0.1",
+    "description": "Inject transformer.js into pages",
+    "permissions": [
+        "storage"
+    ],
+    "host_permissions": [
+        "<all_urls>"
+    ],
+    "content_scripts": [
+        {
+            "matches": [
+                "https://www.books.com.tw/web/sys_tdrntb/books/*"
+            ],
+            "js": [
+                "content.js"
+            ],
+            "run_at": "document_idle"
+        }
+    ],
+    "web_accessible_resources": [
+        {
+            "resources": [
+                "inject.js",
+                "dist/bundle.js"
+            ],
+            "matches": [
+                "<all_urls>"
+            ]
+        }
+    ]
+}

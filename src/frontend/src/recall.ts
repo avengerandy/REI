@@ -117,29 +117,13 @@ class BooksRecall extends Recall {
     }
 }
 
-class GnnRecall extends Recall {
+class BooksHotListRecall extends Recall {
     async recall(): Promise<Item[]> {
-        try {
-            const response = await fetch("http://localhost:1200/gamer/gnn");
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const text = await response.text();
-            const parser = new DOMParser();
-            const xmlDoc = parser.parseFromString(text, "application/xml");
-
-            const items = Array.from(xmlDoc.querySelectorAll("item")).map((item) => {
-                const title = item.querySelector("title")?.textContent || '';
-                return new Item(title);
-            });
-
-            return items;
-        } catch (error) {
-            console.error("Error fetching or parsing RSS feed:", error);
-            return [];
-        }
+        let titleH4Tag: HTMLCollectionOf<HTMLHeadingElement> = document.getElementsByTagName("h4");
+        let titles: string[] = Array.from(titleH4Tag).map((h4Tag) => h4Tag.innerText);
+        let items: Item[] = titles.map((title) => new Item(title));
+        return Promise.resolve(items);
     }
 }
 
-export { Recall, BooksRecall, GnnRecall };
+export { Recall, BooksRecall, BooksHotListRecall };
