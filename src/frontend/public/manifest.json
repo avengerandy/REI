@@ -23,7 +23,7 @@
     "web_accessible_resources": [
         {
             "resources": [
-                "inject.js",
+                "dist/books.js",
                 "dist/bundle.js"
             ],
             "matches": [

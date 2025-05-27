@@ -2,6 +2,13 @@ import { User, Item } from "./core/entities";
 import { betaPDF } from "./core/statistics";
 
 abstract class Reranker {
+    /**
+     * Rerank the items based on the user profile and the items' embeddings.
+     * should return same instance (at least same other prototype) of items with updated scores.
+     *
+     * @param user
+     * @param items
+     */
     abstract rank(user: User, items: Item[]): Promise<Item[]>;
 }
 

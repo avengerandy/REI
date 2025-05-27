@@ -4,14 +4,13 @@
     "js-md5": "^0.8.3"
   },
   "devDependencies": {
+    "@types/chrome": "^0.0.323",
     "esbuild": "^0.25.3",
     "http-server": "^14.1.1",
     "typescript": "^5.4.0"
   },
   "scripts": {
-    "build": "npm run typecheck && esbuild src/index.ts --bundle --sourcemap --format=esm --platform=browser --outfile=public/dist/bundle.js",
-    "watch": "esbuild src/index.ts --bundle --sourcemap --format=esm --platform=browser --outfile=public/dist/bundle.js --watch",
-    "typecheck": "tsc --noEmit",
-    "server": "http-server --cache -1 --cors"
+    "build": "npm run typecheck && esbuild src/index.ts --bundle --sourcemap --format=esm --platform=browser --outfile=public/dist/bundle.js && esbuild src/inject/books.ts --bundle --sourcemap --format=esm --platform=browser --outfile=public/dist/books.js && esbuild src/content/content.ts --bundle --format=esm --platform=browser --outfile=public/content.js",
+    "typecheck": "tsc --noEmit"
   }
 }
