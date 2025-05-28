@@ -23,8 +23,7 @@
     "web_accessible_resources": [
         {
             "resources": [
-                "dist/books.js",
-                "dist/bundle.js"
+                "dist/books.js"
             ],
             "matches": [
                 "<all_urls>"
