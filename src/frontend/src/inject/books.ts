@@ -2,28 +2,44 @@ import { Item, User } from '../core/entities';
 import { EmbeddingProcessor } from '../preProcessor';
 import { BetaLikelihoodReranker } from '../reranker';
 
-class ItemRegistry {
-    private map: Map<string, Item>;
+// generic ItemRegistry
+class ItemRegistry<T = any> {
+    private itemMap: Map<string, Item>;
+    private sourceMap: Map<string, T>;
 
     constructor() {
-        this.map = new Map();
+        this.itemMap = new Map();
+        this.sourceMap = new Map();
     }
 
-    getOrCreate(title: string): Item {
+    getOrCreate(title: string, source?: T): Item {
         const item = new Item(title);
         const hash = item.getHash();
-        if (!this.map.has(hash)) {
-            this.map.set(hash, item);
+        if (!this.itemMap.has(hash)) {
+            this.itemMap.set(hash, item);
+            if (source !== undefined) {
+                this.sourceMap.set(hash, source);
+            }
+        } else if (source !== undefined) {
+            this.sourceMap.set(hash, source);
         }
-        return this.map.get(hash)!;
+        return this.itemMap.get(hash)!;
     }
 
     getByHash(hash: string): Item | undefined {
-        return this.map.get(hash);
+        return this.itemMap.get(hash);
+    }
+
+    getSourceByItem(item: Item): T | undefined {
+        return this.sourceMap.get(item.getHash());
     }
 
     getAll(): Item[] {
-        return Array.from(this.map.values());
+        return Array.from(this.itemMap.values());
+    }
+
+    getAllSources(): T[] {
+        return Array.from(this.sourceMap.values());
     }
 }
 
@@ -34,47 +50,47 @@ interface UIController {
 }
 
 class BooksUIController implements UIController {
-    private registry: ItemRegistry;
+    private registry: ItemRegistry<HTMLElement>;
 
-    constructor(registry: ItemRegistry) {
+    constructor(registry: ItemRegistry<HTMLElement>) {
         this.registry = registry;
     }
 
     extractItems(): Item[] {
-        const titleEls: HTMLCollectionOf<HTMLHeadingElement> = document.getElementsByTagName("h4");
-        return Array.from(titleEls).map(el => {
-            const title = (el as HTMLElement).innerText;
-            return this.registry.getOrCreate(title);
+        const list = document.querySelectorAll('ul.clearfix')[2];
+        const itemTags = Array.from(list.querySelectorAll('.item'));
+
+        return Array.from(itemTags).map(el => {
+            const title = (el.querySelector('h4 a') as HTMLElement)?.innerText ?? '';
+            return this.registry.getOrCreate(title, el as HTMLElement);
         });
     }
 
     sort(items: Item[]): void {
         const list = document.querySelectorAll('ul.clearfix')[2];
-        const itemTags = Array.from(list.querySelectorAll('.item'));
+        if (!list) return;
 
-        itemTags.sort((a, b) => {
-            const aTitle = (a.querySelector('h4 a') as HTMLElement)?.innerText ?? '';
-            const bTitle = (b.querySelector('h4 a') as HTMLElement)?.innerText ?? '';
-            const aScore = this.registry.getOrCreate(aTitle).getScore();
-            const bScore = this.registry.getOrCreate(bTitle).getScore();
-            return bScore - aScore;
-        });
-
-        itemTags.forEach(tag => list.appendChild(tag));
+        items
+            .map(item => {
+                const el = this.registry.getSourceByItem(item);
+                return { item, el };
+            })
+            .filter(entry => entry.el)
+            .sort((a, b) => b.item.getScore() - a.item.getScore())
+            .forEach(({ el }) => list.appendChild(el!));
     }
 
     onItemClick(callback: (item: Item) => void): void {
         document.addEventListener('mousedown', (e) => {
             const link = (e.target as HTMLElement)?.closest('a');
             if (!link) return;
-            const itemEl = link.closest('.item');
+            const itemEl = link.closest('.item') as HTMLElement;
             if (!itemEl) return;
 
-            const titleEl = itemEl.querySelector('h4 a');
-            if (!titleEl) return;
+            const title = (itemEl.querySelector('h4 a') as HTMLElement)?.innerText ?? '';
+            if (!title) return;
 
-            const title = (titleEl as HTMLElement).innerText;
-            const item = this.registry.getOrCreate(title);
+            const item = this.registry.getOrCreate(title, itemEl);
             callback(item);
         });
     }
@@ -83,20 +99,16 @@ class BooksUIController implements UIController {
 // --- Main Inject Script ---
 (async () => {
     const user = new User();
-    const registry = new ItemRegistry();
+    const registry = new ItemRegistry<HTMLElement>();
     const ui = new BooksUIController(registry);
     const reranker = new BetaLikelihoodReranker();
     const processor = new EmbeddingProcessor();
+
     await processor.init();
 
-    // Recall and embed
+    // Recall items
     let items = ui.extractItems();
     items = await processor.process(items);
-
-    // update registry with embeddings
-    for (const item of items) {
-        registry.getOrCreate(item.getTitle()).setEmbedding(item.getEmbedding()!);
-    }
 
     ui.sort(items);
 
@@ -106,5 +118,5 @@ class BooksUIController implements UIController {
         ui.sort(reranked);
     });
 
-    console.log('Books inject initialized with ItemRegistry');
+    console.log('Books inject initialized with generic ItemRegistry');
 })();
