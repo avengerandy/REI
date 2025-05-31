@@ -1,5 +1,5 @@
-import { User, Item } from "./core/entities";
-import { betaPDF } from "./core/statistics";
+import { User, Item } from "./entities";
+import { betaPDF } from "./statistics";
 
 abstract class Reranker {
     /**

@@ -1,3 +1,3 @@
 export { Item, User } from './core/entities';
-export { EmbeddingProcessor } from './preProcessor';
-export { BetaLikelihoodReranker } from './reranker';
+export { EmbeddingProcessor } from './core/preProcessor';
+export { BetaLikelihoodReranker } from './core/reranker';

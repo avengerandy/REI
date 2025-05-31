@@ -1,5 +1,5 @@
 import { pipeline, env } from '@huggingface/transformers';
-import { Item } from "./core/entities";
+import { Item } from "./entities";
 
 env.allowLocalModels = false;
 

@@ -1,6 +1,6 @@
 import { Item, User } from '../core/entities';
-import { EmbeddingProcessor } from '../preProcessor';
-import { BetaLikelihoodReranker } from '../reranker';
+import { EmbeddingProcessor } from '../core/preProcessor';
+import { BetaLikelihoodReranker } from '../core/reranker';
 
 // generic ItemRegistry
 class ItemRegistry<T = any> {
