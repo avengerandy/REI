@@ -61,6 +61,28 @@ class Item {
         const data = JSON.stringify({ 'title': title });
         return md5(data);
     }
+
+    public toJSON(): string {
+        return JSON.stringify({
+            'title': this.title,
+            'hash': this.hash,
+            'type': this.type,
+            'embedding': this.embedding,
+            'score': this.score,
+            'originalScore': this.originalScore
+        });
+    }
+
+    public static fromJSON(json: string): Item {
+        const data = JSON.parse(json);
+        const item = new Item(data.title);
+        item.hash = data.hash;
+        item.type = data.type;
+        item.embedding = data.embedding;
+        item.score = data.score;
+        item.originalScore = data.originalScore;
+        return item;
+    }
 }
 
 class User {
@@ -76,6 +98,19 @@ class User {
 
     getClickHistory(): Item[] {
         return this.clickHistory;
+    }
+
+    public toJSON(): string {
+        return JSON.stringify({
+            'clickHistory': this.clickHistory.map(item => item.toJSON())
+        });
+    }
+
+    public static fromJSON(json: string): User {
+        const data = JSON.parse(json);
+        const user = new User();
+        user.clickHistory = data.clickHistory.map((itemJson: string) => Item.fromJSON(itemJson));
+        return user;
     }
 }
 
