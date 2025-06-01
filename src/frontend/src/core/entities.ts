@@ -62,7 +62,7 @@ class Item {
         return md5(data);
     }
 
-    public toJSON(): string {
+    toJSON(): string {
         return JSON.stringify({
             'title': this.title,
             'hash': this.hash,
@@ -73,7 +73,7 @@ class Item {
         });
     }
 
-    public static fromJSON(json: string): Item {
+    static fromJSON(json: string): Item {
         const data = JSON.parse(json);
         const item = new Item(data.title);
         item.hash = data.hash;
@@ -87,26 +87,41 @@ class Item {
 
 class User {
     private clickHistory: Item[];
+    private maxHistorySize: number = Infinity; // Default to no limit
 
     constructor() {
         this.clickHistory = [];
     }
 
+    setMaxHistorySize(size: number): void {
+        this.maxHistorySize = size;
+        while (this.clickHistory.length > this.maxHistorySize) {
+            this.clickHistory.shift();
+        }
+    }
+
     recordClick(item: Item): void {
         this.clickHistory.push(item);
+        if (this.clickHistory.length > this.maxHistorySize) {
+            this.clickHistory.shift();
+        }
     }
 
     getClickHistory(): Item[] {
         return this.clickHistory;
     }
 
-    public toJSON(): string {
+    clearClickHistory(): void {
+        this.clickHistory = [];
+    }
+
+    toJSON(): string {
         return JSON.stringify({
             'clickHistory': this.clickHistory.map(item => item.toJSON())
         });
     }
 
-    public static fromJSON(json: string): User {
+    static fromJSON(json: string): User {
         const data = JSON.parse(json);
         const user = new User();
         user.clickHistory = data.clickHistory.map((itemJson: string) => Item.fromJSON(itemJson));
