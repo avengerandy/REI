@@ -1,3 +1,3 @@
-llmTools/
-src/frontend/node_modules
-src/frontend/public/dist
+llmTools
+node_modules
+public/dist
