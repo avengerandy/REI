@@ -59,7 +59,7 @@
                     normalize: false
                 });
 
-                return output.sigmoid().tolist();
+                return output.tolist();
             }
         }
 
@@ -76,66 +76,38 @@
                 }
             }
 
-            getBetaScores(vec) {
-                const scores = [];
-                for (let i = 0; i < vec.length; i++) {
-                    const a = this.sum[i] + 1;
-                    const b = this.count - this.sum[i] + 1;
-                    const x = vec[i];
-                    scores.push(betaPDF(x, a, b));
-                }
-                return scores;
+            getAverageVector() {
+                if (this.count === 0) return null;
+                return this.sum.map(v => v / this.count);
             }
         }
 
         class Ranker {
             static rank(items, profile) {
-                return items.map(item => {
-                    const scores = profile.getBetaScores(item.embedding);
-                    const score = scores.reduce((a, b) => a + b, 0) / scores.length;
-                    return { ...item, score };
-                }).sort((a, b) => b.score - a.score);
+                const userVec = profile.getAverageVector();
+                if (!userVec) return items; // no clicks yet
+                return items.map(item => ({
+                    ...item,
+                    score: cosineSimilarity(item.embedding, userVec)
+                })).sort((a, b) => b.score - a.score);
             }
         }
 
-        function betaPDF(x, a, b) {
-            if (x <= 0 || x >= 1) {
-                return 0;
+        function cosineSimilarity(a, b) {
+            let dot = 0, normA = 0, normB = 0;
+            for (let i = 0; i < a.length; i++) {
+                dot += a[i] * b[i];
+                normA += a[i] * a[i];
+                normB += b[i] * b[i];
             }
-            const gamma = n => {
-                const g = 7;
-                const p = [
-                    0.99999999999980993,
-                    676.5203681218851,
-                    -1259.1392167224028,
-                    771.32342877765313,
-                    -176.61502916214059,
-                    12.507343278686905,
-                    -0.13857109526572012,
-                    9.9843695780195716e-6,
-                    1.5056327351493116e-7
-                ];
-                if (n < 0.5) {
-                    return Math.PI / (Math.sin(Math.PI * n) * gamma(1 - n));
-                }
-                n -= 1;
-                let x = p[0];
-                for (let i = 1; i < g + 2; i++) {
-                    x += p[i] / (n + i);
-                }
-                const t = n + g + 0.5;
-                return Math.sqrt(2 * Math.PI) * Math.pow(t, n + 0.5) * Math.exp(-t) * x;
-            };
-            const B = (a, b) => gamma(a) * gamma(b) / gamma(a + b);
-            return (Math.pow(x, a - 1) * Math.pow(1 - x, b - 1)) / B(a, b);
+            if (normA === 0 || normB === 0) return 0;
+            return dot / (Math.sqrt(normA) * Math.sqrt(normB));
         }
 
         window.onload = async () => {
             const processor = new EmbeddingProcessor();
             await processor.init();
-
             const profile = new UserProfile();
-
             const embeddings = await processor.embed(recallData);
 
             let items = recallData.map((title, i) => ({

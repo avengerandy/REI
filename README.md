@@ -25,7 +25,7 @@ This MVP demonstrates:
 * A list of items and a click history panel.
 * Clicking an item updates the user profile and instantly reranks items.
 * Multi-language embedding via `Xenova/paraphrase-multilingual-MiniLM-L12-v2` (running fully in-browser via `transformers.js`).
-* Ranking currently uses **Beta-likelihood**, but **TODO:** switch to **cosine similarity** for simplicity.
+* Ranking uses **cosine similarity** on the user's average embedding.
 
 ![mvp\_demo.png](https://raw.githubusercontent.com/avengerandy/REI/master/mvp_demo.png)
 
