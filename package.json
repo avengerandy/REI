@@ -10,7 +10,10 @@
     "typescript": "^5.4.0"
   },
   "scripts": {
-    "build": "npm run typecheck && esbuild src/index.ts --bundle --sourcemap --format=esm --platform=browser --outfile=public/dist/bundle.js && esbuild src/inject/books.ts --bundle --sourcemap --format=esm --platform=browser --outfile=public/dist/books.js && esbuild src/content/content.ts --bundle --format=esm --platform=browser --outfile=public/content.js",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "build:index": "esbuild src/index.ts --bundle --sourcemap --target=es2020 --format=esm --platform=browser --outfile=public/dist/bundle.js",
+    "build:books": "esbuild src/inject/books.ts --bundle --sourcemap --target=es2020 --format=esm --platform=browser --outfile=public/dist/books.js",
+    "build:content": "esbuild src/content/content.ts --bundle --sourcemap --target=es2020 --format=esm --platform=browser --outfile=public/dist/content.js",
+    "build": "npm run typecheck && npm run build:index && npm run build:books && npm run build:content"
   }
 }

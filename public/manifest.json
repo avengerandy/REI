@@ -1,13 +1,13 @@
 {
     "manifest_version": 3,
-    "name": "Transformers Embedding Test",
+    "name": "REI",
     "version": "0.0.1",
-    "description": "Inject transformer.js into pages",
+    "description": "A lightweight, frontend only recommendation toolkit.",
     "permissions": [
         "storage"
     ],
     "host_permissions": [
-        "<all_urls>"
+        "https://www.books.com.tw/web/sys_tdrntb/books/*"
     ],
     "content_scripts": [
         {
@@ -15,7 +15,7 @@
                 "https://www.books.com.tw/web/sys_tdrntb/books/*"
             ],
             "js": [
-                "content.js"
+                "dist/content.js"
             ],
             "run_at": "document_idle"
         }
@@ -26,7 +26,7 @@
                 "dist/books.js"
             ],
             "matches": [
-                "<all_urls>"
+                "https://www.books.com.tw/*"
             ]
         }
     ]
