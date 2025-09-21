@@ -6,14 +6,18 @@
   "devDependencies": {
     "@types/chrome": "^0.0.323",
     "esbuild": "^0.25.3",
+    "gts": "^6.0.2",
     "http-server": "^14.1.1",
-    "typescript": "^5.4.0"
+    "typescript": "^5.4.0",
+    "@types/node": "^22.7.5"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
     "build:index": "esbuild src/index.ts --bundle --sourcemap --target=es2020 --format=esm --platform=browser --outfile=public/dist/bundle.js",
     "build:books": "esbuild src/inject/books.ts --bundle --sourcemap --target=es2020 --format=esm --platform=browser --outfile=public/dist/books.js",
     "build:content": "esbuild src/content/content.ts --bundle --sourcemap --target=es2020 --format=esm --platform=browser --outfile=public/dist/content.js",
-    "build": "npm run typecheck && npm run build:index && npm run build:books && npm run build:content"
+    "build": "npm run typecheck && npm run build:index && npm run build:books && npm run build:content",
+    "lint": "gts lint",
+    "fix": "gts fix"
   }
 }
