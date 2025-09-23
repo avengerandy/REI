@@ -125,7 +125,7 @@ class User {
     const data = JSON.parse(json);
     const user = new User();
     user.clickHistory = data.clickHistory.map((itemJson: string) => {
-      Item.fromJSON(itemJson);
+      return Item.fromJSON(itemJson);
     });
     return user;
   }
