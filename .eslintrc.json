@@ -2,7 +2,7 @@
   "extends": "./node_modules/gts/",
   "overrides": [
     {
-      "files": ["tests/core/*.ts", "vitest.config.ts"],
+      "files": ["tests/**/*.ts", "vitest.config.ts"],
       "rules": {
         "n/no-unpublished-import": "off"
       }

@@ -1,5 +1,5 @@
 import {describe, it, expect} from 'vitest';
-import {Item, User} from '../../src/core/entities';
+import {Item, User} from '../../../src/core/entities';
 
 describe('Item', () => {
   it('should generate hash from title', () => {
