@@ -4,21 +4,36 @@ REI is a lightweight, frontend‑only recommendation toolkit. It runs completely
 
 ## Core Idea
 
+### Overview
+
 REI is built on a simple principle: **everything happens on the frontend**.
 
 This means no backend logic, no API calls, and no tracking—just client‑side computation. This makes REI private by default, lightweight, and easy to integrate.
 
-Frontend systems naturally work with a **limited set of content already available in the DOM**, making REI ideal for scenarios such as:
+### Key Features
 
-* **News readers** or **RSS feeds** – time-driven; only recent content matters
-* **Trending or hot lists** – popularity-driven; limited in size
-* **E-commerce carousels** – re-ranking a few visible products
+* **Lightweight:** Designed for edge devices and resource-limited environments.
+* **Privacy by design:** User data never leaves the device.
+* **Low disruption:** REI reorders existing items instead of changing what users see, keeping experiences familiar, while working directly with the limited set of content already available in the DOM.
 
-REI allows personalization **without storing user data**, letting individuals customize their own browsing experience.
+### Ideal Use Cases
+
+* **News readers / RSS feeds** – recent items matter most
+* **Trending or hot lists** – popularity-driven content
+* **E-commerce carousels** – limited visible products
+
+### When to Use
+
+REI is best suited for environments where:
+
+* Backend or data resources are limited
+* Privacy or compliance is a concern
+* Existing sorting (recency, popularity) already works, but subtle personalization is desired
+* Minimal engineering effort and stable UX are priorities
 
 ## Minimum Viable Product Demo
 
-There's a MVP of REI that helps you quickly understand how REI works and what it does.
+There's an MVP of REI that helps you quickly understand how REI works and what it does.
 
 This MVP demonstrates:
 
