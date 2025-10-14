@@ -21,6 +21,7 @@
     "lint": "gts lint",
     "fix": "gts fix",
     "test:unit": "vitest run tests/unit",
+    "test:functional": "vitest run tests/functional",
     "test:integration": "vitest run tests/integration"
   }
 }

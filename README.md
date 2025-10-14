@@ -91,6 +91,28 @@ We provide examples showing REI applied to **existing websites**:
 
 **TODO:** List example websites, including screenshots and which Processors & Rerankers they use.
 
+## Testing
+
+REI tests are divided into three levels based on their dependency scope:
+
+### 1. Unit
+
+* Must not depend on other REI modules.
+* No access to any **external resources** (network, file system, etc.).
+* Typically used for lowest-level objects or helper functions.
+
+### 2. Functional
+
+* Can depend on lower-level REI modules (assumed to be correct).
+* Tests logical behavior across multiple components.
+* Still **no external resources** — mock them if necessary.
+
+### 3. Integration
+
+* May access **external resources** (e.g., network, local files, APIs).
+* Tests full workflows or real pipelines.
+* Be cautious of side effects, as these tests execute real operations.
+
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](https://github.com/avengerandy/REI/blob/master/LICENSE) file for details.
