@@ -62,7 +62,6 @@ The main `src` code provides a **production-like modular framework**:
 **Goal:** Show **how REI can scale and remain modular**, while still performing the same operations as the MVP.
 
 **TODO:** Add diagrams showing the pipeline: `ItemRegistry → EmbeddingProcessor → Reranker → UIController`.
-**TODO:** testing & coding style
 
 ## Processors & Rerankers
 
@@ -91,9 +90,14 @@ We provide examples showing REI applied to **existing websites**:
 
 **TODO:** List example websites, including screenshots and which Processors & Rerankers they use.
 
-## Testing
+## Testing & Coding style & Build
 
 REI tests are divided into three levels based on their dependency scope:
+
+```bash
+# run all of them
+npm run test:all
+```
 
 ### 1. Unit
 
@@ -101,17 +105,53 @@ REI tests are divided into three levels based on their dependency scope:
 * No access to any **external resources** (network, file system, etc.).
 * Typically used for lowest-level objects or helper functions.
 
+```bash
+npm run test:unit
+```
+
 ### 2. Functional
 
 * Can depend on lower-level REI modules (assumed to be correct).
 * Tests logical behavior across multiple components.
 * Still **no external resources** — mock them if necessary.
 
+```bash
+npm run test:functional
+```
+
 ### 3. Integration
 
 * May access **external resources** (e.g., network, local files, APIs).
 * Tests full workflows or real pipelines.
 * Be cautious of side effects, as these tests execute real operations.
+
+```bash
+npm run test:integration
+```
+
+### Coding Style
+
+REI follows **Google TypeScript Style (GTS)** for linting and formatting.
+
+* `lint` checks for style violations.
+* `fix` automatically corrects common issues.
+
+```bash
+npm run lint
+npm run fix
+```
+
+### Build
+
+REI uses **esbuild** for bundling and type-checking via **TypeScript**.
+
+* `typecheck` ensures type safety without emitting files.
+* `build` compiles all targets (index, books, content) into `public/dist/`.
+
+```bash
+npm run typecheck
+npm run build
+```
 
 ## License
 

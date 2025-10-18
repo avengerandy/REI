@@ -20,6 +20,7 @@
     "build": "npm run typecheck && npm run build:index && npm run build:books && npm run build:content",
     "lint": "gts lint",
     "fix": "gts fix",
+    "test:all": "vitest run tests",
     "test:unit": "vitest run tests/unit",
     "test:functional": "vitest run tests/functional",
     "test:integration": "vitest run tests/integration"
