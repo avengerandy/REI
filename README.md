@@ -50,18 +50,102 @@ You can find the working MVP in the root folder: [`mvp.html`](https://github.com
 
 ## Architecture
 
-The main `src` code provides a **production-like modular framework**:
+The REI core modules provide the essential components to achieve the system’s goals. Users can integrate these components into their own `UIController` implementations or other workflows according to their needs.
 
-* **Entities:** `Item` and `User` store data, embeddings, and click history.
-* **Processors:** `EmbeddingProcessor` handles in-browser embeddings.
-* **Rerankers:** `BetaLikelihoodReranker` implements LILY; other ranking strategies can be added.
-* **Registry:** `ItemRegistry` manages items and associated DOM elements.
-* **UI Controller:** Interfaces with the webpage DOM to extract items, handle clicks, and reorder lists.
-* **Storage:** Local and session storage for user profiles.
+* **statistics:** utility functions for computing statistical distributions and probability density functions.
+* **entities:** `Item` and `User` store data, embeddings, and click history.
+* **preProcessor:** pre-processor `Item`.
+* **reranker:** implements ranking strategies.
+* **registry:** `ItemRegistry` manages items and associated DOM elements.
+* **storage:** Local and session storage for user profiles.
+* **uiController:** Interfaces with the webpage DOM to extract items, handle clicks, and reorder lists.
 
-**Goal:** Show **how REI can scale and remain modular**, while still performing the same operations as the MVP.
+### Class Diagram
 
-**TODO:** Add diagrams showing the pipeline: `ItemRegistry → EmbeddingProcessor → Reranker → UIController`.
+```mermaid
+classDiagram
+    direction TB
+    class Item {
+        +getTitle()
+        +getHash()
+        +toJSON()
+        +static fromJSON()
+    }
+
+    class User {
+        +recordClick(item)
+        +getClickHistory()
+        +clearClickHistory()
+        +toJSON()
+        +static fromJSON()
+    }
+
+    class registry~T~ {
+        +getOrCreate(title, source?)
+        +getByHash(hash)
+        +getSourceByItem(item)
+        +getAll()
+    }
+
+    class preProcessor {
+        +init()
+        +process(items)
+    }
+
+    class reranker {
+        +rank(user, items)
+    }
+
+    class uiController {
+        <<interface>>
+        +extractItems()
+        +sort(items)
+        +onItemClick(callback)
+    }
+
+    class storage {
+        +save(user)
+        +load()
+        +clear()
+    }
+
+    %% Relationships
+    reranker --> User
+    reranker --> Item
+    User --> Item
+    registry --> Item
+    preProcessor --> Item
+    storage --> User
+
+    %% uiController orchestration
+    uiController --> User
+    uiController --> storage
+    uiController --> registry
+    uiController --> preProcessor
+    uiController --> reranker
+```
+
+### Sequence Diagram (Pipeline)
+
+```mermaid
+sequenceDiagram
+    participant UI as uiController
+    participant Reg as registry
+    participant Proc as preProcessor
+    participant User as User
+    participant Rank as reranker
+    participant Store as storage
+
+    UI->>Reg: extractItems()
+    Reg-->>UI: items
+    UI->>Proc: process(items)
+    Proc-->>UI: items with embeddings
+    UI->>User: recordClick(item)
+    UI->>Store: save(User)
+    UI->>Rank: rank(User, registry.getAll())
+    Rank-->>UI: ranked items
+    UI->>UI: sort(items)
+```
 
 ## Processors & Rerankers
 
@@ -92,7 +176,7 @@ We provide examples showing REI applied to **existing websites**:
 
 ## Testing & Coding style & Build
 
-REI tests are divided into three levels based on their dependency scope:
+REI’s core modules have comprehensive test coverage, divided into three levels based on dependency scope. Each module is tested according to its characteristics and responsibilities, so not every module undergoes all three levels of testing.
 
 ```bash
 # run all of them
