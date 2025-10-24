@@ -40,6 +40,17 @@ describe('UserStoreFactory and Stores', () => {
     expect(loaded?.getClickHistory()[0].getTitle()).toBe('hello');
   });
 
+  it('should save and load user from memory', () => {
+    const store = UserStoreFactory.create(UserStorageType.Memory);
+
+    store.save(user);
+    const loaded = store.load();
+
+    expect(loaded).not.toBeNull();
+    expect(loaded?.getClickHistory().length).toBe(1);
+    expect(loaded?.getClickHistory()[0].getTitle()).toBe('hello');
+  });
+
   it('should clear user from localStorage', () => {
     const store = UserStoreFactory.create(UserStorageType.Local);
 
@@ -60,11 +71,23 @@ describe('UserStoreFactory and Stores', () => {
     expect(loaded).toBeNull();
   });
 
-  it('loading without saving should return null', () => {
+  it('should clear user from memory', () => {
+    const store = UserStoreFactory.create(UserStorageType.Memory);
+
+    store.save(user);
+    store.clear();
+    const loaded = store.load();
+
+    expect(loaded).toBeNull();
+  });
+
+  it('loading without saving should return null for all stores', () => {
     const localStore = UserStoreFactory.create(UserStorageType.Local);
     const sessionStore = UserStoreFactory.create(UserStorageType.Session);
+    const memoryStore = UserStoreFactory.create(UserStorageType.Memory);
 
     expect(localStore.load()).toBeNull();
     expect(sessionStore.load()).toBeNull();
+    expect(memoryStore.load()).toBeNull();
   });
 });
