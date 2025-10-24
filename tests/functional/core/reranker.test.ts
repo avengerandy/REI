@@ -13,10 +13,7 @@ describe('BetaLikelihoodReranker (Functional)', () => {
     user.recordClick(clicked1);
     user.recordClick(clicked2);
 
-    const items = [
-      new Item('similar'),
-      new Item('different'),
-    ];
+    const items = [new Item('similar'), new Item('different')];
     items[0].setEmbedding([0.88, 0.79, 0.7]);
     items[1].setEmbedding([0.1, 0.2, 0.3]);
 
@@ -51,10 +48,7 @@ describe('BetaLikelihoodReranker (Functional)', () => {
     user.recordClick(clicked1);
     user.recordClick(clicked2);
 
-    const items = [
-      new Item('similar to new'),
-      new Item('similar to old'),
-    ];
+    const items = [new Item('similar to new'), new Item('similar to old')];
     items[0].setEmbedding([0.88, 0.79, 0.7]);
     items[1].setEmbedding([0.15, 0.25, 0.3]);
 

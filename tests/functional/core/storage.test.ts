@@ -1,9 +1,9 @@
 /**
  * @vitest-environment jsdom
  */
-import { describe, it, expect, beforeEach } from 'vitest';
-import { UserStoreFactory, UserStorageType } from '../../../src/core/storage';
-import { User, Item } from '../../../src/core/entities';
+import {describe, it, expect, beforeEach} from 'vitest';
+import {UserStoreFactory, UserStorageType} from '../../../src/core/storage';
+import {User, Item} from '../../../src/core/entities';
 
 describe('UserStoreFactory and Stores', () => {
   let user: User;

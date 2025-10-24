@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import { ItemRegistry } from '../../../src/core/registry';
+import {describe, it, expect} from 'vitest';
+import {ItemRegistry} from '../../../src/core/registry';
 
 describe('ItemRegistry', () => {
   it('should creates and retrieves the same item by title', () => {
@@ -17,8 +17,8 @@ describe('ItemRegistry', () => {
   });
 
   it('should associates a source object with an item', () => {
-    const registry = new ItemRegistry<{ id: number }>();
-    const source = { id: 1 };
+    const registry = new ItemRegistry<{id: number}>();
+    const source = {id: 1};
     const item = registry.getOrCreate('Book A', source);
     expect(registry.getSourceByItem(item)).toEqual(source);
   });
