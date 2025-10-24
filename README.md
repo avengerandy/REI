@@ -113,7 +113,7 @@ npm run test:unit
 
 * Can depend on lower-level REI modules (assumed to be correct).
 * Tests logical behavior across multiple components.
-* Still **no external resources** — mock them if necessary.
+* Still **no external resources** — mock them if necessary (ex: jsdom).
 
 ```bash
 npm run test:functional

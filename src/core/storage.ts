@@ -3,6 +3,7 @@ import {User} from './entities';
 enum UserStorageType {
   Local = 'local',
   Session = 'session',
+  Memory = 'memory',
 }
 
 interface IUserStorage {
@@ -45,6 +46,22 @@ class SessionStorageUserStore implements IUserStorage {
   }
 }
 
+class MemoryUserStore implements IUserStorage {
+  private user: User | null = null;
+
+  save(user: User): void {
+    this.user = user;
+  }
+
+  load(): User | null {
+    return this.user;
+  }
+
+  clear(): void {
+    this.user = null;
+  }
+}
+
 class UserStoreFactory {
   static create(type: UserStorageType): IUserStorage {
     switch (type) {
@@ -52,8 +69,8 @@ class UserStoreFactory {
         return new LocalStorageUserStore();
       case UserStorageType.Session:
         return new SessionStorageUserStore();
-      default:
-        throw new Error(`Unsupported storage type: ${type}`);
+      case UserStorageType.Memory:
+        return new MemoryUserStore();
     }
   }
 }
