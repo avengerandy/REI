@@ -1,93 +1,82 @@
 /**
  * @vitest-environment jsdom
  */
-import {describe, it, expect, beforeEach} from 'vitest';
+import {describe, it, expect, beforeEach, vi} from 'vitest';
 import {UserStoreFactory, UserStorageType} from '../../../src/core/storage';
 import {User, Item} from '../../../src/core/entities';
+import type {IUserStorage} from '../../../src/core/storage';
 
-describe('UserStoreFactory and Stores', () => {
-  let user: User;
-  let item: Item;
+// ---- Mock chrome.storage.local ----
+const chromeData: Record<string, string> = {};
+const mockChrome = {
+  storage: {
+    local: {
+      get: vi.fn(async (key: string | string[]) => {
+        if (Array.isArray(key)) {
+          const result: Record<string, string> = {};
+          key.forEach(k => (result[k] = chromeData[k]));
+          return result;
+        } else {
+          return {[key]: chromeData[key]};
+        }
+      }),
+      set: vi.fn(async (items: Record<string, string>) => {
+        Object.assign(chromeData, items);
+      }),
+      remove: vi.fn(async (key: string) => {
+        delete chromeData[key];
+      }),
+      clear: vi.fn(async () => {
+        for (const k in chromeData) delete chromeData[k];
+      }),
+    },
+  },
+};
+vi.stubGlobal('chrome', mockChrome);
 
-  beforeEach(() => {
-    localStorage.clear();
-    sessionStorage.clear();
+const storageTypes = [
+  UserStorageType.Local,
+  UserStorageType.Session,
+  UserStorageType.Memory,
+  UserStorageType.ChromeLocal,
+];
 
-    user = new User();
-    item = new Item('hello');
-    user.recordClick(item);
-  });
+storageTypes.forEach(type => {
+  describe(`${type} store`, () => {
+    let store: IUserStorage;
+    let user: User;
+    let item: Item;
 
-  it('should save and load user from localStorage', () => {
-    const store = UserStoreFactory.create(UserStorageType.Local);
+    beforeEach(async () => {
+      localStorage.clear();
+      sessionStorage.clear();
+      for (const k in chromeData) delete chromeData[k];
 
-    store.save(user);
-    const loaded = store.load();
+      store = UserStoreFactory.create(type);
+      user = new User();
+      item = new Item('hello');
+      user.recordClick(item);
+    });
 
-    expect(loaded).not.toBeNull();
-    expect(loaded?.getClickHistory().length).toBe(1);
-    expect(loaded?.getClickHistory()[0].getTitle()).toBe('hello');
-  });
+    it('should save and load user', async () => {
+      await store.save(user);
+      const loaded = await store.load();
 
-  it('should save and load user from sessionStorage', () => {
-    const store = UserStoreFactory.create(UserStorageType.Session);
+      expect(loaded).not.toBeNull();
+      expect(loaded?.getClickHistory().length).toBe(1);
+      expect(loaded?.getClickHistory()[0].getTitle()).toBe('hello');
+    });
 
-    store.save(user);
-    const loaded = store.load();
+    it('should clear user', async () => {
+      await store.save(user);
+      await store.clear();
+      const loaded = await store.load();
+      expect(loaded).toBeNull();
+    });
 
-    expect(loaded).not.toBeNull();
-    expect(loaded?.getClickHistory().length).toBe(1);
-    expect(loaded?.getClickHistory()[0].getTitle()).toBe('hello');
-  });
-
-  it('should save and load user from memory', () => {
-    const store = UserStoreFactory.create(UserStorageType.Memory);
-
-    store.save(user);
-    const loaded = store.load();
-
-    expect(loaded).not.toBeNull();
-    expect(loaded?.getClickHistory().length).toBe(1);
-    expect(loaded?.getClickHistory()[0].getTitle()).toBe('hello');
-  });
-
-  it('should clear user from localStorage', () => {
-    const store = UserStoreFactory.create(UserStorageType.Local);
-
-    store.save(user);
-    store.clear();
-    const loaded = store.load();
-
-    expect(loaded).toBeNull();
-  });
-
-  it('should clear user from sessionStorage', () => {
-    const store = UserStoreFactory.create(UserStorageType.Session);
-
-    store.save(user);
-    store.clear();
-    const loaded = store.load();
-
-    expect(loaded).toBeNull();
-  });
-
-  it('should clear user from memory', () => {
-    const store = UserStoreFactory.create(UserStorageType.Memory);
-
-    store.save(user);
-    store.clear();
-    const loaded = store.load();
-
-    expect(loaded).toBeNull();
-  });
-
-  it('loading without saving should return null for all stores', () => {
-    const localStore = UserStoreFactory.create(UserStorageType.Local);
-    const sessionStore = UserStoreFactory.create(UserStorageType.Session);
-    const memoryStore = UserStoreFactory.create(UserStorageType.Memory);
-
-    expect(localStore.load()).toBeNull();
-    expect(sessionStore.load()).toBeNull();
-    expect(memoryStore.load()).toBeNull();
+    it('loading without saving should return null', async () => {
+      const loaded = await store.load();
+      expect(loaded).toBeNull();
+    });
   });
 });
