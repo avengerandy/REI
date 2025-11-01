@@ -179,7 +179,7 @@ We provide examples showing REI applied to **existing websites**:
 REI’s core modules have comprehensive test coverage, divided into three levels based on dependency scope. Each module is tested according to its characteristics and responsibilities, so not every module undergoes all three levels of testing.
 
 ```bash
-# run all of them
+# run all of them with coverage report
 npm run test:all
 ```
 

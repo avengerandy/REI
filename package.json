@@ -6,6 +6,7 @@
   "devDependencies": {
     "@types/chrome": "^0.0.323",
     "@types/node": "^22.7.5",
+    "@vitest/coverage-istanbul": "^3.2.4",
     "esbuild": "^0.25.3",
     "gts": "^6.0.2",
     "http-server": "^14.1.1",
@@ -21,7 +22,7 @@
     "build": "npm run typecheck && npm run build:index && npm run build:books && npm run build:content",
     "lint": "gts lint",
     "fix": "gts fix",
-    "test:all": "vitest run tests",
+    "test:all": "vitest run tests --coverage",
     "test:unit": "vitest run tests/unit",
     "test:functional": "vitest run tests/functional",
     "test:integration": "vitest run tests/integration"
