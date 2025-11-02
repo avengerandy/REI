@@ -1,5 +1,5 @@
 import {Item, User} from '../core/entities';
-import {EmbeddingProcessor} from '../core/preProcessor';
+import {TextEmbeddingProcessor} from '../core/preProcessor';
 import {BetaLikelihoodReranker} from '../core/reranker';
 import {ItemRegistry} from '../core/registry';
 import {UIController} from '../core/uiController';
@@ -58,7 +58,7 @@ void (async () => {
   const registry = new ItemRegistry<HTMLElement>();
   const ui = new BooksUIController(registry);
   const reranker = new BetaLikelihoodReranker();
-  const processor = new EmbeddingProcessor();
+  const processor = new TextEmbeddingProcessor();
 
   await processor.init();
 
