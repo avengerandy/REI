@@ -74,7 +74,7 @@ storageTypes.forEach(type => {
       expect(loaded).toBeNull();
     });
 
-    it('loading without saving should return null', async () => {
+    it('should loading without saving should return null', async () => {
       const loaded = await store.load();
       expect(loaded).toBeNull();
     });

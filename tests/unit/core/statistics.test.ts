@@ -1,7 +1,7 @@
 import {describe, it, expect} from 'vitest';
 import {betaPDF} from '../../../src/core/statistics';
 
-describe('betaPDF (Unit)', () => {
+describe('betaPDF', () => {
   it('should return 0 when x <= 0 or x >= 1', () => {
     expect(betaPDF(0, 2, 3)).toBe(0);
     expect(betaPDF(1, 2, 3)).toBe(0);
@@ -27,6 +27,12 @@ describe('betaPDF (Unit)', () => {
     const nearZero = betaPDF(0.1, 5, 2);
     const nearOne = betaPDF(0.9, 5, 2);
     expect(nearOne).toBeGreaterThan(nearZero);
+  });
+
+  it('should correctly compute when parameters < 0.5 (gamma reflection branch)', () => {
+    const value = betaPDF(0.5, 0.3, 1.2);
+    expect(value).toBeGreaterThan(0);
+    expect(isFinite(value)).toBe(true);
   });
 
   it('should produce finite positive values for normal input', () => {

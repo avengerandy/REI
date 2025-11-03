@@ -68,6 +68,11 @@ describe('User', () => {
     expect(history.length).toBe(2);
     expect(history[0].getTitle()).toBe('B');
     expect(history[1].getTitle()).toBe('C');
+
+    user.setMaxHistorySize(1);
+    const history2 = user.getClickHistory();
+    expect(history2.length).toBe(1);
+    expect(history[0].getTitle()).toBe('C');
   });
 
   it('should clear history', () => {
