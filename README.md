@@ -181,6 +181,41 @@ REI’s core modules have comprehensive test coverage, divided into three levels
 ```bash
 # run all of them with coverage report
 npm run test:all
+
+> test:all
+> vitest run tests --coverage
+
+
+ RUN  v3.2.4 /app
+      Coverage enabled with istanbul
+
+ ✓ tests/unit/core/statistics.test.ts (6 tests) 3ms
+ ✓ tests/unit/core/entities.test.ts (7 tests) 4ms
+ ✓ tests/functional/core/registry.test.ts (7 tests) 4ms
+ ✓ tests/functional/core/reranker.test.ts (3 tests) 3ms
+ ✓ tests/integration/core/preProcessor.test.ts (4 tests) 4244ms
+   ✓ TextEmbeddingProcessor > should work whether allowLocalModels true or false  2252ms
+   ✓ TextEmbeddingProcessor > should embed item titles into embeddings  1003ms
+   ✓ TextEmbeddingProcessor > should produce embeddings with values between 0 and 1  987ms
+ ✓ tests/functional/core/storage.test.ts (12 tests) 5ms
+
+ Test Files  6 passed (6)
+      Tests  39 passed (39)
+   Start at  14:58:25
+   Duration  15.97s (transform 1.50s, setup 0ms, collect 4.14s, tests 4.26s, environment 14.57s, prepare 3.16s)
+
+ % Coverage report from istanbul
+-----------------|---------|----------|---------|---------|-------------------
+File             | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s
+-----------------|---------|----------|---------|---------|-------------------
+All files        |   99.39 |    89.18 |     100 |     100 |
+ entities.ts     |     100 |      100 |     100 |     100 |
+ preProcessor.ts |     100 |      100 |     100 |     100 |
+ registry.ts     |     100 |      100 |     100 |     100 |
+ reranker.ts     |     100 |       40 |     100 |     100 | 19-39
+ statistics.ts   |     100 |      100 |     100 |     100 |
+ storage.ts      |   97.36 |    92.85 |     100 |     100 | 81
+-----------------|---------|----------|---------|---------|-------------------
 ```
 
 ### 1. Unit
