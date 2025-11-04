@@ -16,7 +16,7 @@ class BetaLikelihoodReranker extends Reranker {
   private count: number;
   private sum: number[];
 
-  constructor(dim = 384) {
+  constructor(dim: number) {
     super();
     this.count = 0;
     this.sum = new Array(dim).fill(0);

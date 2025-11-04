@@ -57,8 +57,8 @@ void (async () => {
   const user = new User();
   const registry = new ItemRegistry<HTMLElement>();
   const ui = new BooksUIController(registry);
-  const reranker = new BetaLikelihoodReranker();
   const processor = new TextEmbeddingProcessor();
+  const reranker = new BetaLikelihoodReranker(processor.getModelEmbeddingDim());
 
   await processor.init();
 

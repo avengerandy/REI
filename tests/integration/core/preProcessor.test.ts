@@ -27,7 +27,7 @@ describe('TextEmbeddingProcessor', () => {
     expect(result[0].getEmbedding()!.length).toBeGreaterThan(0);
   });
 
-  it('should embed item titles into embeddings', async () => {
+  it('should embed item titles into embeddings with its dimension', async () => {
     const processor = new TextEmbeddingProcessor();
     await processor.init();
 
@@ -43,6 +43,7 @@ describe('TextEmbeddingProcessor', () => {
     expect(Array.isArray(emb1)).toBe(true);
     expect(emb1.length).toBeGreaterThan(0);
     expect(emb1.length).toBe(emb2.length);
+    expect(emb2.length).toBe(processor.getModelEmbeddingDim());
   });
 
   it('should produce embeddings with values between 0 and 1', async () => {

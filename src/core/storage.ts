@@ -48,18 +48,18 @@ class SessionStorageUserStore implements IUserStorage {
 }
 
 class MemoryUserStore implements IUserStorage {
-  private user: User | null = null;
+  private static user: User | null = null;
 
   async save(user: User): Promise<void> {
-    this.user = user;
+    MemoryUserStore.user = user;
   }
 
   async load(): Promise<User | null> {
-    return this.user;
+    return MemoryUserStore.user;
   }
 
   async clear(): Promise<void> {
-    this.user = null;
+    MemoryUserStore.user = null;
   }
 }
 

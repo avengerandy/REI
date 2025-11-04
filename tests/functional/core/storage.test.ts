@@ -65,6 +65,13 @@ storageTypes.forEach(type => {
       expect(loaded).not.toBeNull();
       expect(loaded?.getClickHistory().length).toBe(1);
       expect(loaded?.getClickHistory()[0].getTitle()).toBe('hello');
+
+      const anotherStore = UserStoreFactory.create(type);
+      const anotherLoaded = await anotherStore.load();
+
+      expect(anotherLoaded).not.toBeNull();
+      expect(anotherLoaded?.getClickHistory().length).toBe(1);
+      expect(anotherLoaded?.getClickHistory()[0].getTitle()).toBe('hello');
     });
 
     it('should clear user', async () => {

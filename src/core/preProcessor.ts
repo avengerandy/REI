@@ -10,19 +10,22 @@ abstract class PreProcessor {
   abstract process(items: Item[]): Promise<Item[]>;
 }
 
-class TextEmbeddingProcessor extends PreProcessor {
+abstract class EmbeddingProcessor extends PreProcessor {
+  abstract getModelEmbeddingDim(): number;
+  abstract init(): Promise<void>;
+  abstract process(items: Item[]): Promise<Item[]>;
+}
+
+class TextEmbeddingProcessor extends EmbeddingProcessor {
   private static modelName = 'Xenova/paraphrase-multilingual-MiniLM-L12-v2';
   private static modelEmbeddingDim = 384;
 
-  private pipeline: FeatureExtractionPipeline | null;
-  private sigmoidOutput: boolean;
-  private allowLocalModels: boolean;
+  private pipeline: FeatureExtractionPipeline | null = null;
+  private sigmoidOutput = false;
+  private allowLocalModels = false;
 
-  constructor() {
-    super();
-    this.pipeline = null;
-    this.sigmoidOutput = false;
-    this.allowLocalModels = false;
+  getModelEmbeddingDim(): number {
+    return TextEmbeddingProcessor.modelEmbeddingDim;
   }
 
   setSigmoidOutput(sigmoidOutput: boolean): void {
