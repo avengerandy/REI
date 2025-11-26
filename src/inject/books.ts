@@ -1,6 +1,6 @@
 import {Item, User} from '../core/entities';
 import {TextEmbeddingProcessor} from '../core/preProcessor';
-import {BetaLikelihoodReranker} from '../core/reranker';
+import {LILYReranker} from '../core/reranker';
 import {ItemRegistry} from '../core/registry';
 import {UIController} from '../core/uiController';
 
@@ -58,19 +58,19 @@ void (async () => {
   const registry = new ItemRegistry<HTMLElement>();
   const ui = new BooksUIController(registry);
   const processor = new TextEmbeddingProcessor();
-  const reranker = new BetaLikelihoodReranker(processor.getModelEmbeddingDim());
+  const reranker = new LILYReranker(processor.getModelEmbeddingDim());
 
   await processor.init();
 
-  // Recall items
+  // processor Recall items
   let items = ui.extractItems();
   items = await processor.process(items);
+  const reranked = await reranker.rank(user, items);
 
-  ui.sort(items);
-
+  ui.sort(reranked);
   ui.onItemClick(async clickedItem => {
     user.recordClick(clickedItem);
-    const reranked = await reranker.rank(user, registry.getAll());
+    const reranked = await reranker.rank(user, items);
     ui.sort(reranked);
   });
 

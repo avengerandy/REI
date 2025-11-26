@@ -56,11 +56,13 @@ The REI core modules provide the essential components to achieve the system’s 
 * **entities:** `Item` and `User` store data, embeddings, and click history.
 * **preProcessor:** pre-processor `Item`.
 * **reranker:** implements ranking strategies.
-* **registry:** `ItemRegistry` manages items and associated DOM elements.
 * **storage:** Local and session storage for user profiles.
-* **uiController:** Interfaces with the webpage DOM to extract items, handle clicks, and reorder lists.
+* **uiController (optional):** Interfaces with the webpage DOM to extract items, handle clicks, and reorder lists.
+* **registry (optional):** `ItemRegistry` manages items and associated DOM elements.
 
 ### Class Diagram
+
+#### core
 
 ```mermaid
 classDiagram
@@ -80,13 +82,6 @@ classDiagram
         +static fromJSON()
     }
 
-    class registry~T~ {
-        +getOrCreate(title, source?)
-        +getByHash(hash)
-        +getSourceByItem(item)
-        +getAll()
-    }
-
     class preProcessor {
         +init()
         +process(items)
@@ -96,6 +91,47 @@ classDiagram
         +rank(user, items)
     }
 
+    class storage {
+        +save(user)
+        +load()
+        +clear()
+    }
+
+    class client
+
+    %% Relationships
+    reranker --> User
+    reranker --> Item
+    User --> Item
+    preProcessor --> Item
+    storage --> User
+
+    client --> storage
+    client --> registry
+    client --> User
+    client --> preProcessor
+    client --> reranker
+```
+
+#### UI control (optional)
+
+```mermaid
+classDiagram
+    direction TB
+    class Item {
+        +getTitle()
+        +getHash()
+        +toJSON()
+        +static fromJSON()
+    }
+
+    class registry~T~ {
+        +getOrCreate(title, source?)
+        +getByHash(hash)
+        +getSourceByItem(item)
+        +getAll()
+    }
+
     class uiController {
         <<interface>>
         +extractItems()
@@ -103,26 +139,12 @@ classDiagram
         +onItemClick(callback)
     }
 
-    class storage {
-        +save(user)
-        +load()
-        +clear()
-    }
+    class client
 
     %% Relationships
-    reranker --> User
-    reranker --> Item
-    User --> Item
-    registry --> Item
-    preProcessor --> Item
-    storage --> User
-
-    %% uiController orchestration
-    uiController --> User
-    uiController --> storage
+    client --> uiController
     uiController --> registry
-    uiController --> preProcessor
-    uiController --> reranker
+    registry --> Item
 ```
 
 ### Sequence Diagram (Pipeline)

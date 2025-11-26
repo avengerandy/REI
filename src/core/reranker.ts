@@ -12,7 +12,7 @@ abstract class Reranker {
   abstract rank(user: User, items: Item[]): Promise<Item[]>;
 }
 
-class BetaLikelihoodReranker extends Reranker {
+class LILYReranker extends Reranker {
   private count: number;
   private sum: number[];
 
@@ -58,4 +58,60 @@ class BetaLikelihoodReranker extends Reranker {
   }
 }
 
-export {Reranker, BetaLikelihoodReranker};
+class AvgCosineReranker extends Reranker {
+  private dim: number;
+
+  constructor(dim: number) {
+    super();
+    this.dim = dim;
+  }
+
+  private cosineSimilarity(a: number[], b: number[]): number {
+    let dot = 0;
+    let normA = 0;
+    let normB = 0;
+    for (let i = 0; i < this.dim; i++) {
+      dot += a[i] * b[i];
+      normA += a[i] * a[i];
+      normB += b[i] * b[i];
+    }
+    if (normA === 0 || normB === 0) return 0;
+    return dot / (Math.sqrt(normA) * Math.sqrt(normB));
+  }
+
+  async rank(user: User, items: Item[]): Promise<Item[]> {
+    const historyEmbeddings = user
+      .getClickHistory()
+      .map(item => item.getEmbedding())
+      .filter((e): e is number[] => e !== null);
+
+    if (historyEmbeddings.length === 0) {
+      items.forEach(item => item.setScore(0));
+      return items;
+    }
+
+    const dim = this.dim;
+    const avgVec = new Array(dim).fill(0);
+    for (const emb of historyEmbeddings) {
+      for (let i = 0; i < dim; i++) {
+        avgVec[i] += emb[i];
+      }
+    }
+    for (let i = 0; i < dim; i++) {
+      avgVec[i] /= historyEmbeddings.length;
+    }
+
+    for (const item of items) {
+      const emb = item.getEmbedding();
+      if (emb) {
+        item.setScore(this.cosineSimilarity(avgVec, emb));
+      } else {
+        item.setScore(0);
+      }
+    }
+
+    return items.sort((a, b) => b.getScore() - a.getScore());
+  }
+}
+
+export {Reranker, LILYReranker, AvgCosineReranker};
