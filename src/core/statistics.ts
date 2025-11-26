@@ -1,3 +1,8 @@
+/**
+ * Reference: Marsaglia, G. and Tsang, W.W., 2000.
+ * A simple method for generating gamma variables.
+ */
+
 function gamma(n: number): number {
   const g = 7;
   const p: number[] = [
@@ -30,4 +35,52 @@ function betaPDF(x: number, a: number, b: number): number {
   return (Math.pow(x, a - 1) * Math.pow(1 - x, b - 1)) / B(a, b);
 }
 
-export {betaPDF};
+function sampleGamma(shape: number): number {
+  // shape > 0
+  if (shape < 1) {
+    // Use Johnk's generator via boosting:
+    // Gamma(α) = Gamma(α+1) * U^(1/α)
+    const u = Math.random();
+    return sampleGamma(shape + 1) * Math.pow(u, 1 / shape);
+  }
+
+  // shape >= 1 : Marsaglia & Tsang method
+  const d = shape - 1 / 3;
+  const c = 1 / Math.sqrt(9 * d);
+
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
+    let x: number;
+    let v: number;
+    do {
+      // sample standard normal via Box-Muller
+      const u1 = Math.random();
+      const u2 = Math.random();
+      const z = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+      x = z;
+      v = 1 + c * x;
+    } while (v <= 0);
+
+    v = v * v * v;
+    const u = Math.random();
+    // acceptance criterion
+    if (
+      u < 1 - 0.0331 * (x * x) * (x * x) ||
+      Math.log(u) < 0.5 * x * x + d * (1 - v + Math.log(v))
+    ) {
+      return d * v; // scale theta=1
+    }
+  }
+}
+
+function betaRandomSample(a: number, b: number): number {
+  if (a <= 0 || b <= 0) {
+    throw new Error('betaRandomSample requires a>0 and b>0');
+  }
+  const x = sampleGamma(a);
+  const y = sampleGamma(b);
+  if (x === 0 && y === 0) return 0; // extremely unlikely, but safe-guard
+  return x / (x + y);
+}
+
+export {betaPDF, betaRandomSample};
