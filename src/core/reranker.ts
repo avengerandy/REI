@@ -1,9 +1,9 @@
 import {User, Item} from './entities';
-import {betaPDF} from './statistics';
+import {betaPDF, betaRandomSample} from './statistics';
 
 abstract class Reranker {
   /**
-   * Rerank the items based on the user profile and the items' embeddings.
+   * Rerank the items based on the user profile and the items' embeddings & types.
    * should return same instance (at least same other prototype) of items with updated scores.
    *
    * @param user
@@ -114,4 +114,47 @@ class AvgCosineReranker extends Reranker {
   }
 }
 
-export {Reranker, LILYReranker, AvgCosineReranker};
+class PositiveThompsonReranker extends Reranker {
+  private stats: Map<string, {a: number; b: number}> = new Map();
+  private NULL_KEY = '__NULL__';
+
+  private recordPositiveFeedback(item: Item): void {
+    const t = item.getType();
+    const key = t === null ? this.NULL_KEY : String(t);
+    const entry = this.stats.get(key) ?? {a: 1, b: 1};
+    entry.a += 1;
+    this.stats.set(key, entry);
+  }
+
+  private ensureTypeKey(key: string): void {
+    if (!this.stats.has(key)) {
+      this.stats.set(key, {a: 1, b: 1});
+    }
+  }
+
+  async rank(user: User, items: Item[]): Promise<Item[]> {
+    const types = new Set<string>();
+    for (const item of items) {
+      const t = item.getType();
+      const key = t === null ? this.NULL_KEY : String(t);
+      types.add(key);
+      this.ensureTypeKey(key);
+    }
+
+    for (const historyItem of user.getClickHistory()) {
+      this.recordPositiveFeedback(historyItem);
+    }
+
+    for (const item of items) {
+      const t = item.getType();
+      const key = t === null ? this.NULL_KEY : String(t);
+      const s = this.stats.get(key)!;
+      const score = betaRandomSample(s.a, s.b);
+      item.setScore(score);
+    }
+
+    return items.sort((a, b) => b.getScore() - a.getScore());
+  }
+}
+
+export {Reranker, LILYReranker, AvgCosineReranker, PositiveThompsonReranker};
