@@ -116,7 +116,10 @@ class User {
   }
 
   toJSON(): string {
+    const maxHistorySize =
+      this.maxHistorySize === Infinity ? null : this.maxHistorySize;
     return JSON.stringify({
+      maxHistorySize: maxHistorySize,
       clickHistory: this.clickHistory.map(item => item.toJSON()),
     });
   }
@@ -127,6 +130,9 @@ class User {
     user.clickHistory = data.clickHistory.map((itemJson: string) => {
       return Item.fromJSON(itemJson);
     });
+    if (data.maxHistorySize !== null) {
+      user.setMaxHistorySize(data.maxHistorySize);
+    }
     return user;
   }
 }

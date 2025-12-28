@@ -86,6 +86,7 @@ describe('User', () => {
 
   it('should serialize and deserialize correctly', () => {
     const user = new User();
+    user.setMaxHistorySize(2);
     user.recordClick(new Item('One'));
     user.recordClick(new Item('Two'));
 
@@ -96,5 +97,8 @@ describe('User', () => {
     expect(history.length).toBe(2);
     expect(history[0].getTitle()).toBe('One');
     expect(history[1].getTitle()).toBe('Two');
+
+    restored.recordClick(new Item('Three'));
+    expect(restored.getClickHistory().length).toBe(2);
   });
 });
