@@ -3,17 +3,17 @@
 ```mermaid
 flowchart TB
     subgraph Any Item list from backend
-        B1[Server Provides Item List]
+        B1[Server<br>Provides Item List]
     end
 
     subgraph REI in frontend
-        P1[Processors Transform Items]
-        P2[Frontend store User History]
-        R1[Reranker Scores Items]
+        P1[Processors<br>Transform Items]
+        P2[store User History]
+        R1[Reranker<br>Scores Items]
     end
 
     subgraph Recommendation for User
-        U1[User Sees Recommended Items]
+        U1[User<br>Sees Recommended Items]
     end
 
     B1 --> P1
@@ -72,14 +72,13 @@ You can find the working MVP in the root folder: [`mvp.html`](https://github.com
 
 ## Architecture
 
-The REI core modules provide the essential components to achieve the system’s goals. Users can integrate these components into their own `UIController` implementations or other workflows according to their needs.
+The REI core modules provide the essential components to achieve the system’s goals. Users can integrate these components into their own workflows according to their needs.
 
 * statistics: utility functions for computing statistical distributions and probability density functions.
 * entities: `Item` and `User` store data, embeddings, and click history.
 * preProcessor: pre-processor `Item`.
 * reranker: implements ranking strategies.
 * storage: Local and session storage for user profiles.
-* uiController (optional): Interfaces with the webpage DOM to extract items, handle clicks, and reorder lists.
 * registry (optional): `ItemRegistry` manages items and associated DOM elements.
 
 ### Class Diagram
@@ -135,7 +134,7 @@ classDiagram
     client --> reranker
 ```
 
-#### UI control (optional)
+#### registry (optional)
 
 ```mermaid
 classDiagram
@@ -154,41 +153,47 @@ classDiagram
         +getAll()
     }
 
-    class uiController {
-        <<interface>>
-        +extractItems()
-        +sort(items)
-        +onItemClick(callback)
-    }
-
     class client
 
     %% Relationships
-    client --> uiController
-    uiController --> registry
+    client --> registry
     registry --> Item
 ```
 
-### Sequence Diagram (Pipeline)
+### Sequence Diagram
+
+#### init (sort)
 
 ```mermaid
 sequenceDiagram
-    participant UI as uiController
+    participant UI as client
+    participant Store as storage
     participant Reg as registry
     participant Proc as preProcessor
-    participant User as User
     participant Rank as reranker
+
+    UI->>Store: getUser()
+    Store-->>UI: User
+    UI->>Reg: regist Items
+    Reg-->>UI: Items
+    UI->>Proc: process Items
+    Proc-->>UI: Items with embeddings
+    UI->>Rank: rank with User & Items
+    Rank-->>UI: ranked Items
+    UI->>UI: sort Items
+```
+
+#### event (on click)
+
+```mermaid
+sequenceDiagram
+    participant UI as client
     participant Store as storage
 
-    UI->>Reg: extractItems()
-    Reg-->>UI: items
-    UI->>Proc: process(items)
-    Proc-->>UI: items with embeddings
-    UI->>User: recordClick(item)
+    UI->>Store: getUser()
+    Store-->>UI: User
+    UI->>User: User.recordClick(Item)
     UI->>Store: save(User)
-    UI->>Rank: rank(User, registry.getAll())
-    Rank-->>UI: ranked items
-    UI->>UI: sort(items)
 ```
 
 ## Processors

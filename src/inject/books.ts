@@ -2,9 +2,9 @@ import {Item, User} from '../core/entities';
 import {TextEmbeddingProcessor} from '../core/preProcessor';
 import {LILYReranker} from '../core/reranker';
 import {ItemRegistry} from '../core/registry';
-import {UIController} from '../core/uiController';
+import {UserStoreFactory, UserStorageType} from '../core/storage';
 
-class BooksUIController implements UIController {
+class BooksUIController {
   private registry: ItemRegistry<HTMLElement>;
 
   constructor(registry: ItemRegistry<HTMLElement>) {
@@ -54,13 +54,18 @@ class BooksUIController implements UIController {
 
 // --- Main Inject Script ---
 void (async () => {
-  const user = new User();
+  const store = UserStoreFactory.create(UserStorageType.Local);
+  const user = (await store.load()) ?? new User();
+  user.setMaxHistorySize(20);
+
+  const processor = new TextEmbeddingProcessor();
+  processor.setSigmoidOutput(true);
+  processor.setAllowLocalModels(true);
+  await processor.init();
+
+  const reranker = new LILYReranker(processor.getModelEmbeddingDim());
   const registry = new ItemRegistry<HTMLElement>();
   const ui = new BooksUIController(registry);
-  const processor = new TextEmbeddingProcessor();
-  const reranker = new LILYReranker(processor.getModelEmbeddingDim());
-
-  await processor.init();
 
   // processor Recall items
   let items = ui.extractItems();
@@ -70,9 +75,8 @@ void (async () => {
   ui.sort(reranked);
   ui.onItemClick(async clickedItem => {
     user.recordClick(clickedItem);
-    const reranked = await reranker.rank(user, items);
-    ui.sort(reranked);
+    await store.save(user);
   });
 
-  console.log('Books inject initialized with generic ItemRegistry');
+  console.log('Books inject initialized');
 })();

@@ -7,10 +7,20 @@ function injectModuleScript(scriptPath: string) {
   );
 }
 
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
-    injectModuleScript('dist/books.js');
-  });
-} else {
-  injectModuleScript('dist/books.js');
+function loadModuleScript(scriptPath: string) {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () =>
+      injectModuleScript(scriptPath),
+    );
+  } else {
+    injectModuleScript(scriptPath);
+  }
+}
+
+const {host, pathname} = window.location;
+
+if (host === 'www.books.com.tw' && pathname === '/web/sys_tdrntb/books/') {
+  loadModuleScript('dist/books.js');
+} else if (host === 'www.tenlong.com.tw' && pathname === '/') {
+  loadModuleScript('dist/tenlong.js');
 }
