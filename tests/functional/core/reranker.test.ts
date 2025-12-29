@@ -273,7 +273,7 @@ describe('PLUTOReranker (Functional)', () => {
 
     for (let i = 0; i < RUNS; i++) {
       const ranked = await reranker.rank(user, [...items]);
-      counts[ranked[0].getType()!]++;
+      counts[Number(ranked[0].getType())!]++;
     }
 
     counts.forEach(c => {

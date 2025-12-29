@@ -86,15 +86,25 @@ class TextEmbeddingProcessor extends EmbeddingProcessor {
 }
 
 class OneHotEncodingProcessor extends EncodingProcessor {
-  private typeVocab: number[] = [];
+  private typeVocab: Array<number | string> = [];
 
   setEncodingDim(items: Item[]): void {
-    const types = new Set<number>();
+    const types = new Set<number | string>();
     for (const item of items) {
       const t = item.getType();
-      if (t !== null) types.add(t);
+      if (t !== null) {
+        types.add(t);
+      }
     }
-    this.typeVocab = Array.from(types).sort((a, b) => a - b); // 排序方便穩定索引
+    this.typeVocab = Array.from(types).sort((a, b) => {
+      if (typeof a === 'number' && typeof b === 'number') {
+        return a - b;
+      }
+      if (typeof a === 'string' && typeof b === 'string') {
+        return a.localeCompare(b);
+      }
+      return typeof a === 'number' ? -1 : 1;
+    });
   }
 
   getEncodingDim(): number {
@@ -110,16 +120,18 @@ class OneHotEncodingProcessor extends EncodingProcessor {
       this.setEncodingDim(items);
     }
 
-    const vocabIndex = new Map<number, number>(
+    const vocabIndex = new Map<number | string, number>(
       this.typeVocab.map((t, i) => [t, i]),
     );
 
     for (const item of items) {
-      const vec = Array(this.typeVocab.length).fill(0);
+      const vec = new Array(this.typeVocab.length).fill(0);
       const t = item.getType();
       if (t !== null) {
         const idx = vocabIndex.get(t);
-        if (idx !== undefined) vec[idx] = 1;
+        if (idx !== undefined) {
+          vec[idx] = 1;
+        }
       }
       item.setEmbedding(vec);
     }

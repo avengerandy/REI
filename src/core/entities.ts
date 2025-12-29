@@ -3,7 +3,7 @@ import {md5} from 'js-md5';
 class Item {
   private title: string;
   private hash: string;
-  private type: number | null;
+  private type: string | number | null;
   private embedding: number[] | null;
   private score: number;
   private originalScore: number | null;
@@ -25,11 +25,11 @@ class Item {
     return this.hash;
   }
 
-  setType(type: number): void {
+  setType(type: string | number): void {
     this.type = type;
   }
 
-  getType(): number | null {
+  getType(): string | number | null {
     return this.type;
   }
 

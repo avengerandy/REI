@@ -61,6 +61,28 @@ describe('OneHotEncodingProcessor', () => {
     expect(emb1).not.toEqual(emb2);
   });
 
+  it('should encode mixed number and string types into stable one-hot vectors', async () => {
+    const items = [new Item('x'), new Item('y'), new Item('z'), new Item('w')];
+
+    items[0].setType('b');
+    items[1].setType(1);
+    items[2].setType('a');
+    items[3].setType(0);
+
+    await processor.process(items);
+
+    const embB = items[0].getEmbedding()!;
+    const emb1 = items[1].getEmbedding()!;
+    const embA = items[2].getEmbedding()!;
+    const emb0 = items[3].getEmbedding()!;
+
+    expect(processor.getEncodingDim()).toBe(4);
+    expect(emb0).toEqual([1, 0, 0, 0]);
+    expect(emb1).toEqual([0, 1, 0, 0]);
+    expect(embA).toEqual([0, 0, 1, 0]);
+    expect(embB).toEqual([0, 0, 0, 1]);
+  });
+
   it('should produce same embedding for same type', async () => {
     const items = [new Item('apple'), new Item('banana')];
     items[0].setType(2);

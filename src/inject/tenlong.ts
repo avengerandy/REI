@@ -31,14 +31,17 @@ class TenlongUIController {
     const targetLink = h2Links.find(a => a.textContent?.trim() === headerText);
     if (!targetLink) return;
 
-    const container = targetLink.parentElement?.nextElementSibling?.querySelector('.list-wrapper ul');
+    const container =
+      targetLink.parentElement?.nextElementSibling?.querySelector(
+        '.list-wrapper ul',
+      );
     if (!container) return;
 
     items
-      .map(item => ({ item: item, el: this.registry.getSourceByItem(item) }))
+      .map(item => ({item: item, el: this.registry.getSourceByItem(item)}))
       .filter(entry => entry.el)
       .sort((a, b) => b.item.getScore() - a.item.getScore())
-      .forEach((item) => container.appendChild(item.el!));
+      .forEach(item => container.appendChild(item.el!));
   }
 
   getUserHistory(): Item[] {
