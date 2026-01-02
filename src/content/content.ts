@@ -23,4 +23,6 @@ if (host === 'www.books.com.tw' && pathname === '/web/sys_tdrntb/books/') {
   loadModuleScript('dist/books.js');
 } else if (host === 'www.tenlong.com.tw' && pathname === '/') {
   loadModuleScript('dist/tenlong.js');
+} else if (host === 'www.dlsite.com' && pathname === '/home/') {
+  loadModuleScript('dist/dlsite.js');
 }

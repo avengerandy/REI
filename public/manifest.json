@@ -8,13 +8,15 @@
     ],
     "host_permissions": [
         "https://www.books.com.tw/web/sys_tdrntb/books/*",
-        "https://www.tenlong.com.tw/*"
+        "https://www.tenlong.com.tw/*",
+        "https://www.dlsite.com/home/*"
     ],
     "content_scripts": [
         {
             "matches": [
                 "https://www.books.com.tw/web/sys_tdrntb/books/*",
-                "https://www.tenlong.com.tw/*"
+                "https://www.tenlong.com.tw/*",
+                "https://www.dlsite.com/home/*"
             ],
             "js": [
                 "dist/content.js"
@@ -37,6 +39,14 @@
             ],
             "matches": [
                 "https://www.tenlong.com.tw/*"
+            ]
+        },
+        {
+            "resources": [
+                "dist/dlsite.js"
+            ],
+            "matches": [
+                "https://www.dlsite.com/*"
             ]
         }
     ]

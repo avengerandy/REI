@@ -96,23 +96,17 @@ void (async () => {
 
   // process user history
   let userHistoryItems = ui.getUserHistory();
-  console.log(userHistoryItems);
   userHistoryItems = await processor.process(userHistoryItems);
   userHistoryItems.forEach(item => user.recordClick(item));
 
   // process & sort items per language
   const zhTwItems = await processor.process(ui.getZhTwItems());
-  console.log(zhTwItems);
   ui.sortZhTwItems(await reranker.rank(user, zhTwItems));
 
   const enItems = await processor.process(ui.getEnItems());
-  console.log(enItems);
-
   ui.sortEnItems(await reranker.rank(user, enItems));
 
   const zhCnItems = await processor.process(ui.getZhCnItems());
-  console.log(zhCnItems);
-
   ui.sortZhCnItems(await reranker.rank(user, zhCnItems));
 
   console.log('Tenlong inject initialized');
