@@ -340,7 +340,7 @@ const zhCnItems = await processor.process(ui.getZhCnItems());
 ui.sortZhCnItems(await reranker.rank(user, zhCnItems));
 ```
 
-Full inject code: [`inject/tenlong.ts`](https://github.com/avengerandy/REI/blob/master/inject/tenlong.ts)
+Full inject code: [`inject/tenlong.ts`](https://github.com/avengerandy/REI/blob/master/src/inject/tenlong.ts)
 
 > The Tenlong dataset and website are the property of their respective owners ([https://www.tenlong.com.tw](https://www.tenlong.com.tw)). This example is provided solely for research and testing purposes. REI does not modify or disrupt any website operations. If any infringement is found, please contact us for immediate removal.
 
@@ -380,7 +380,7 @@ ui.onItemClick(async clickedItem => {
 });
 ```
 
-Full inject code: [`inject/books.ts`](https://github.com/avengerandy/REI/blob/master/inject/books.ts)
+Full inject code: [`inject/books.ts`](https://github.com/avengerandy/REI/blob/master/src/inject/books.ts)
 
 > The Books dataset and website are the property of their respective owners ([https://www.books.com.tw](https://www.books.com.tw)). This example is provided solely for research and testing purposes. REI does not modify or disrupt any website operations. If any infringement is found, please contact us for immediate removal.
 
@@ -428,7 +428,7 @@ const reranked = await reranker.rank(user, items);
 // update UI
 ```
 
-Full inject code: [`inject/pixiv.ts`](https://github.com/avengerandy/REI/blob/master/inject/pixiv.ts)
+Full inject code: [`inject/pixiv.ts`](https://github.com/avengerandy/REI/blob/master/src/inject/pixiv.ts)
 
 > The Pixiv dataset and website are the property of their respective owners ([https://www.pixiv.net](https://www.pixiv.net)). This example is provided solely for research and testing purposes. REI does not modify or disrupt any website operations. If any infringement is found, please contact us for immediate removal.
 
@@ -465,7 +465,7 @@ ui.onItemClick(async clickedItem => {
 });
 ```
 
-Full inject code: [`inject/dlsite.ts`](https://github.com/avengerandy/REI/blob/master/inject/dlsite.ts)
+Full inject code: [`inject/dlsite.ts`](https://github.com/avengerandy/REI/blob/master/src/inject/dlsite.ts)
 
 > The DLsite dataset and website are the property of their respective owners ([https://www.dlsite.com](https://www.dlsite.com)). This example is provided solely for research and testing purposes. REI does not modify or disrupt any website operations. If any infringement is found, please contact us for immediate removal.
 
