@@ -9,14 +9,16 @@
     "host_permissions": [
         "https://www.books.com.tw/web/sys_tdrntb/books/*",
         "https://www.tenlong.com.tw/*",
-        "https://www.dlsite.com/home/*"
+        "https://www.dlsite.com/home/*",
+        "https://www.pixiv.net/*"
     ],
     "content_scripts": [
         {
             "matches": [
                 "https://www.books.com.tw/web/sys_tdrntb/books/*",
                 "https://www.tenlong.com.tw/*",
-                "https://www.dlsite.com/home/*"
+                "https://www.dlsite.com/home/*",
+                "https://www.pixiv.net/*"
             ],
             "js": [
                 "dist/content.js"
@@ -47,6 +49,14 @@
             ],
             "matches": [
                 "https://www.dlsite.com/*"
+            ]
+        },
+        {
+            "resources": [
+                "dist/pixiv.js"
+            ],
+            "matches": [
+                "https://www.pixiv.net/*"
             ]
         }
     ]
