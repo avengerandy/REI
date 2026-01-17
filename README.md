@@ -432,8 +432,6 @@ Full inject code: [`inject/pixiv.ts`](https://github.com/avengerandy/REI/blob/ma
 
 > The Pixiv dataset and website are the property of their respective owners ([https://www.pixiv.net](https://www.pixiv.net)). This example is provided solely for research and testing purposes. REI does not modify or disrupt any website operations. If any infringement is found, please contact us for immediate removal.
 
----
-
 ### DLsite Example
 
 ![dlsite_demo.png](https://raw.githubusercontent.com/avengerandy/REI/master/image/dlsite_demo.png)
