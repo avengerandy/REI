@@ -1,7 +1,7 @@
 {
     "manifest_version": 3,
     "name": "REI",
-    "version": "0.0.1",
+    "version": "1.0.0",
     "description": "A lightweight, frontend only recommendation toolkit.",
     "permissions": [
         "storage"

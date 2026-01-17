@@ -64,7 +64,7 @@ This MVP demonstrates:
 * Multi-language embedding via `Xenova/paraphrase-multilingual-MiniLM-L12-v2` (running fully in-browser via `transformers.js`).
 * Ranking uses cosine similarity on the user's average embedding.
 
-![mvp\_demo.png](https://raw.githubusercontent.com/avengerandy/REI/master/mvp_demo.png)
+![mvp\_demo.png](https://raw.githubusercontent.com/avengerandy/REI/master/image/mvp_demo.png)
 
 You can find the working MVP in the root folder: [`mvp.html`](https://github.com/avengerandy/REI/blob/master/mvp.html).
 
@@ -302,13 +302,172 @@ At the next section, we provide four real-world examples, each demonstrating one
 
 ## Browser Extension Examples
 
-We provide examples showing REI applied to existing websites:
+Below are four real-world examples showing how REI can be applied to existing websites. Each example includes a brief scenario, user data handling, preprocessing, reranker choice, and a screenshot of the result. UI controller details are omitted for clarity; full inject code can be found in the repository.
 
-* Automatically extract visible items from pages (books, products, etc.).
-* Compute embeddings and rerank items locally.
-* Demonstrates the concept of personalized browsing without data collection.
+### Tenlong Example
 
-TODO: List example websites, including screenshots and which Processors & Rerankers they use.
+![tenlong_demo.png](https://raw.githubusercontent.com/avengerandy/REI/master/image/tenlong_demo.png)
+
+* **Scenario**: When researching a specific field, users visit Tenlong to browse books related to that field.
+* **Requirement**: Re-rank the latest books in each language according to recent research topics, highlighting new releases relevant to the field.
+* **User**: Uses the page’s click history directly; no additional tracking required.
+* **Preprocessing**: Book titles are used as content, embedded with text embeddings.
+* **Reranker**: Cosine similarity. Single-peak preference is sufficient because research topics are usually specific.
+
+```ts
+const user = new User();
+const registry = new ItemRegistry<HTMLElement>();
+const ui = new TenlongUIController(registry);
+const processor = new TextEmbeddingProcessor();
+processor.setAllowLocalModels(true);
+const reranker = new AvgCosineReranker(processor.getModelEmbeddingDim());
+
+await processor.init();
+
+// process user history
+let userHistoryItems = ui.getUserHistory();
+userHistoryItems = await processor.process(userHistoryItems);
+userHistoryItems.forEach(item => user.recordClick(item));
+
+// process & sort items per language
+const zhTwItems = await processor.process(ui.getZhTwItems());
+ui.sortZhTwItems(await reranker.rank(user, zhTwItems));
+
+const enItems = await processor.process(ui.getEnItems());
+ui.sortEnItems(await reranker.rank(user, enItems));
+
+const zhCnItems = await processor.process(ui.getZhCnItems());
+ui.sortZhCnItems(await reranker.rank(user, zhCnItems));
+```
+
+Full inject code: [`inject/tenlong.ts`](https://github.com/avengerandy/REI/blob/master/inject/tenlong.ts)
+
+> The Tenlong dataset and website are the property of their respective owners ([https://www.tenlong.com.tw](https://www.tenlong.com.tw)). This example is provided solely for research and testing purposes. REI does not modify or disrupt any website operations. If any infringement is found, please contact us for immediate removal.
+
+### Books Example
+
+![books_demo.png](https://raw.githubusercontent.com/avengerandy/REI/master/image/books_demo.png)
+
+* **Scenario**: Popular books leaderboard with mostly fixed types.
+* **Requirement**: Adjust ranking based on previously clicked book types to emphasize preferred genres.
+* **User**: Click history is recorded locally, starting from zero.
+* **Preprocessing**: Book titles embedded using text embeddings.
+* **Reranker**: LILY. Multi-peak convergence is desired because user may like multiple genres; exploration is needed for cold-start.
+
+```ts
+const store = UserStoreFactory.create(UserStorageType.Local);
+const user = (await store.load()) ?? new User();
+user.setMaxHistorySize(20);
+
+const processor = new TextEmbeddingProcessor();
+processor.setSigmoidOutput(true);
+processor.setAllowLocalModels(true);
+await processor.init();
+
+const reranker = new LILYReranker(processor.getModelEmbeddingDim());
+const registry = new ItemRegistry<HTMLElement>();
+const ui = new BooksUIController(registry);
+
+// processor Recall items
+let items = ui.extractItems();
+items = await processor.process(items);
+const reranked = await reranker.rank(user, items);
+
+ui.sort(reranked);
+ui.onItemClick(async clickedItem => {
+  user.recordClick(clickedItem);
+  await store.save(user);
+});
+```
+
+Full inject code: [`inject/books.ts`](https://github.com/avengerandy/REI/blob/master/inject/books.ts)
+
+> The Books dataset and website are the property of their respective owners ([https://www.books.com.tw](https://www.books.com.tw)). This example is provided solely for research and testing purposes. REI does not modify or disrupt any website operations. If any infringement is found, please contact us for immediate removal.
+
+### Pixiv Example
+
+![pixiv_demo.png](https://raw.githubusercontent.com/avengerandy/REI/master/image/pixiv_demo.png)
+
+* **Scenario**: Tag-based website; users search for tags to find relevant artworks.
+* **Requirement**: Recommend tags based on frequently searched tags to facilitate future exploration.
+* **User**: Click/search history recorded locally across pages.
+* **Preprocessing**: None (already tag-based).
+* **Reranker**: Positive Thompson Sampling. Each clicked tag receives positive reward; final ranking based on Beta sampling. No need to worry about convergence; frequent tags naturally dominate.
+
+```ts
+const store = UserStoreFactory.create(UserStorageType.Local);
+const user = (await store.load()) ?? new User();
+user.setMaxHistorySize(100);
+
+const pathname = window.location.pathname;
+const tagRegex = /\/tags\/(.*)\/(artworks|illustrations)/;
+if (tagRegex.test(pathname)) {
+  const result = tagRegex.exec(pathname);
+  if (Array.isArray(result)) {
+    const item = new Item(self.crypto.randomUUID());
+    item.setType(decodeURI(result[1]));
+    user.recordClick(item);
+    await store.save(user);
+  }
+  return;
+}
+
+const tags = new Set<string>();
+const items = [];
+for (const item of user.getClickHistory()) {
+  const tag = String(item.getType());
+  if (!tags.has(tag)) {
+    tags.add(tag);
+    items.push(item);
+  }
+}
+
+const reranker = new PositiveThompsonReranker();
+const reranked = await reranker.rank(user, items);
+
+// update UI
+```
+
+Full inject code: [`inject/pixiv.ts`](https://github.com/avengerandy/REI/blob/master/inject/pixiv.ts)
+
+> The Pixiv dataset and website are the property of their respective owners ([https://www.pixiv.net](https://www.pixiv.net)). This example is provided solely for research and testing purposes. REI does not modify or disrupt any website operations. If any infringement is found, please contact us for immediate removal.
+
+---
+
+### DLsite Example
+
+![dlsite_demo.png](https://raw.githubusercontent.com/avengerandy/REI/master/image/dlsite_demo.png)
+
+* **Scenario**: DLsite homepage's latest items are sorted by popularity or release date.
+* **Requirement**: Re-rank latest items according to user’s click history, aligning type (tag) distribution with user preferences.
+* **User**: History is recorded locally, as frontend cannot access it.
+* **Preprocessing**: None (already tag-based).
+* **Reranker**: PLUTO. Handles multiple items per type; prevents single-tag domination as would occur with simple Thompson Sampling.
+
+```ts
+const store = UserStoreFactory.create(UserStorageType.Local);
+const user = (await store.load()) ?? new User();
+user.setMaxHistorySize(20);
+
+const reranker = new PLUTOReranker({T: 10});
+const registry = new ItemRegistry<HTMLElement>();
+const ui = new DlsiteUIController(registry);
+
+// processor Recall items
+ui.showAllNewItems();
+const items = ui.extractItems();
+const reranked = await reranker.rank(user, items);
+
+ui.sort(reranked);
+ui.onItemClick(async clickedItem => {
+  user.recordClick(clickedItem);
+  await store.save(user);
+});
+```
+
+Full inject code: [`inject/dlsite.ts`](https://github.com/avengerandy/REI/blob/master/inject/dlsite.ts)
+
+> The DLsite dataset and website are the property of their respective owners ([https://www.dlsite.com](https://www.dlsite.com)). This example is provided solely for research and testing purposes. REI does not modify or disrupt any website operations. If any infringement is found, please contact us for immediate removal.
 
 ## Testing & Coding style & Build
 
@@ -325,27 +484,27 @@ npm run test:all
  RUN  v3.2.4 /app
       Coverage enabled with istanbul
 
- ✓ tests/unit/core/statistics.test.ts (10 tests) 31ms
- ✓ tests/functional/core/registry.test.ts (7 tests) 4ms
+ ✓ tests/unit/core/statistics.test.ts (10 tests) 37ms
  ✓ tests/unit/core/entities.test.ts (7 tests) 4ms
- ✓ tests/functional/core/reranker.test.ts (16 tests) 32ms
- ✓ tests/functional/core/preProcessor.test.ts (6 tests) 5ms
- ✓ tests/integration/core/preProcessor.test.ts (4 tests) 4792ms
-   ✓ TextEmbeddingProcessor > should work whether allowLocalModels true or false  2501ms
-   ✓ TextEmbeddingProcessor > should embed item titles into embeddings with its dimension  1081ms
-   ✓ TextEmbeddingProcessor > should produce embeddings with values between 0 and 1  1206ms
+ ✓ tests/functional/core/registry.test.ts (7 tests) 3ms
+ ✓ tests/functional/core/reranker.test.ts (16 tests) 41ms
+ ✓ tests/functional/core/preProcessor.test.ts (7 tests) 9ms
+ ✓ tests/integration/core/preProcessor.test.ts (4 tests) 4751ms
+   ✓ TextEmbeddingProcessor > should work whether allowLocalModels true or false  2555ms
+   ✓ TextEmbeddingProcessor > should embed item titles into embeddings with its dimension  1122ms
+   ✓ TextEmbeddingProcessor > should produce embeddings with values between 0 and 1  1071ms
  ✓ tests/functional/core/storage.test.ts (12 tests) 6ms
 
  Test Files  7 passed (7)
-      Tests  62 passed (62)
-   Start at  07:26:35
-   Duration  26.57s (transform 4.97s, setup 0ms, collect 10.37s, tests 4.87s, environment 25.05s, prepare 4.71s)
+      Tests  63 passed (63)
+   Start at  15:37:01
+   Duration  26.83s (transform 2.94s, setup 0ms, collect 10.20s, tests 4.85s, environment 25.37s, prepare 4.32s)
 
  % Coverage report from istanbul
 -----------------|---------|----------|---------|---------|-------------------
 File             | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s
 -----------------|---------|----------|---------|---------|-------------------
-All files        |   98.83 |    94.59 |     100 |   99.68 |
+All files        |   98.85 |     95.2 |     100 |   99.69 |
  entities.ts     |     100 |      100 |     100 |     100 |
  preProcessor.ts |     100 |      100 |     100 |     100 |
  registry.ts     |     100 |      100 |     100 |     100 |
